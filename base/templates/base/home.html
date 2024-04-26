@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>Home again!</h1>
+
+<div>
+    {% for mail in inInbox %}
+
+        <a href="/mail/{{mail.id}}"><h3>{{mail.title}}</h3></a>
+
+    {% endfor %}
+</div>
+
+{% endblock content %}
