@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<h1>Home again!</h1>
+<h1>Home</h1>
 
 <div>
-    {% for mail in inInbox %}
+    {% for letter in mail %}
 
-        <a href="/mail/{{mail.id}}"><h3>{{mail.title}}</h3></a>
+        <a href="{% url 'mail' letter.id %}"><h3>{{letter.title}}</h3></a>
 
     {% endfor %}
 </div>
