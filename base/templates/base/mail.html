@@ -8,6 +8,8 @@
 
     <h3>{{letter.content}}</h3>
 
+    <a href="{% url 'respond' letter.id %}">Respond</a>
+
 </div>
 
 {% endblock content %}

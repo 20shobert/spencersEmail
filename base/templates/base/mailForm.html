@@ -1,0 +1,21 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<div>
+    <form method="POST" action="">
+        {% csrf_token %}
+
+        <h3>To: {{ form.receiver }}</h3>
+        <h3>Title: {{ form.title }}</h3>
+        {% if letter.isResponse == True %}
+            <h3>Previous Content: {{ form.previousContent }}</h3>           
+        {% endif %}
+        <h3>Content: {{ form.content }}</h3>
+
+        <input type="submit" value="Send">
+
+    </form>
+</div>
+
+{% endblock content %}

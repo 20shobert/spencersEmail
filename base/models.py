@@ -15,9 +15,11 @@ class Box(models.Model):
 
 #Mail
 class Mail(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #null=True IS TEMPORARY. CHANGE LATER.
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender') #null=True IS TEMPORARY. CHANGE LATER.
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='receiver') #null=True IS TEMPORARY. CHANGE LATER.
     currentBox = models.ForeignKey(Box, on_delete=models.CASCADE, null=True) #Which box the mail is currently in. Defaults to Inbox.
     title = models.CharField(max_length=200) #Max length of 200 char
+    previousContent = models.TextField(null=True) #Field CAN be blank
     content = models.TextField() #Text field cannot be blank
     sentDate = models.DateTimeField(auto_now_add=True) #Time is saved once it's first created
     isResponse = models.BooleanField(default=False) #If email is a response to another email, true
@@ -26,6 +28,9 @@ class Mail(models.Model):
     isUnread = models.BooleanField(default=True) #If unread, true. Defaults to unread
     isHighlighted = models.BooleanField(default=False) #If highlighted, true
     isSelected = models.BooleanField(default=False) #If selected, true
+
+    class Meta:
+        ordering = ['-sentDate', 'title'] #Newest emails are first
 
     def __str__(self):
         return str(self.title)
