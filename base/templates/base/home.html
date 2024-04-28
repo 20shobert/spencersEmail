@@ -10,7 +10,14 @@
 
     {% for letter in mail %}
 
+        {% if letter.isUnread == True %}
+            <h2>Unread</h2>
+        {% else %}
+            <h2>Read</h2>
+        {% endif %}
+
         <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
+        
         <hr>
         
     {% endfor %}

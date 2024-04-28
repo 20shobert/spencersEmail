@@ -6,7 +6,8 @@
 
 <div>
 
-    <h3>{{letter.content}}</h3>
+    <h3>{{ letter.previousContent }}</h3>
+    <h3>{{ letter.content }}</h3>
 
     <a href="{% url 'respond' letter.id %}">Respond</a>
 
