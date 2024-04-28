@@ -7,8 +7,9 @@
 <div>
     {% for letter in mail %}
 
-        <a href="{% url 'mail' letter.id %}"><h3>{{letter.title}}</h3></a>
-
+        <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
+        <hr>
+        
     {% endfor %}
 </div>
 
