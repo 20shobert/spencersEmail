@@ -13,8 +13,8 @@ def home(request): #On the homescreen
 
 def mail(request, pk): #Looking at an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
-    letter.isUnread = False
-    letter.save()
+    letter.isUnread = False #Marks the letter as read
+    letter.save() #Saves it to the database
     context = {'letter': letter}
 
     return render(request, 'mail.html', context)
