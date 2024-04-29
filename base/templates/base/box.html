@@ -2,9 +2,10 @@
 
 {% block content %}
 
-<h1>Home</h1>
+<h1>{{ box.name }}</h1>
 
 <div>
+
     <div>
         {% for box in boxes %}
 
@@ -13,12 +14,9 @@
         {% endfor %}
     </div>
 
-    <div>
-        <a href="{% url 'sendMail' %}">Compose Email</a>
-    </div>
+    {% for letter in mail %}
 
-    <div>
-        {% for letter in mail %}
+        {% if letter.currentBox.name == box.name %}
 
             {% if letter.isUnread == True %}
                 <h2>Unread</h2>
@@ -33,9 +31,11 @@
             </a>
 
             <hr>
+        
+        {% endif %}
             
-        {% endfor %}
-    </div>
+    {% endfor %}
+
 </div>
 
 {% endblock content %}

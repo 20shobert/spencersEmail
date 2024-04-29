@@ -1,15 +1,24 @@
 from django.shortcuts import render, redirect
-from .models import Mail
+from .models import Mail, Box
 from .forms import MailForm
 
 # Create your views here.
 
 def home(request): #On the homescreen
+    boxes = Box.objects.all() #Grab all boxes in database
     mail = Mail.objects.all() #Grab all mail in database
 
-    context = {'mail': mail}
+    context = {'mail': mail, 'boxes': boxes}
 
     return render(request, 'home.html', context)
+
+def box(request, pk): #Going inside of a box
+    box = Box.objects.get(id=pk)
+    mail = Mail.objects.all() #Only grab mail that's inside that specific box
+
+    context = {'box': box, 'mail': mail}
+
+    return render(request, 'box.html', context)
 
 def mail(request, pk): #Looking at an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk

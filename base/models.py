@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 #Boxes
 class Box(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #null=True IS TEMPORARY. CHANGE LATER.
-    name = models.CharField(max_length=11) #Name of box
+    name = models.CharField(max_length=11, unique=True) #Name of box. Cannot have duplicate names
     numInside = models.IntegerField(default=0) #Number of emails inside this box
 
     def __str__(self):
@@ -19,7 +19,7 @@ class Mail(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='receiver') #null=True IS TEMPORARY. CHANGE LATER.
     currentBox = models.ForeignKey(Box, on_delete=models.CASCADE, null=True) #Which box the mail is currently in. Defaults to Inbox.
     title = models.CharField(max_length=200) #Max length of 200 char
-    previousContent = models.TextField(null=True) #Field CAN be blank
+    previousContent = models.TextField(null=True, blank=True) #Field CAN be blank in forms
     content = models.TextField() #Text field cannot be blank
     sentDate = models.DateTimeField(auto_now_add=True) #Time is saved once it's first created
     isResponse = models.BooleanField(default=False) #If email is a response to another email, true
