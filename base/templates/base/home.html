@@ -17,7 +17,11 @@
         {% endif %}
 
         <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
-        
+
+        <a href="{% url 'deleteEmail' letter.id %}">
+            <h4>Delete</h4>
+        </a>
+
         <hr>
         
     {% endfor %}

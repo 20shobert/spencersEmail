@@ -57,3 +57,9 @@ def respond(request, pk): #Responding to an email
     context = {'letter': letter, 'form': form}
 
     return render(request, 'mailForm.html', context)
+
+def deleteEmail(request, pk): #Delete an email
+    letter = Mail.objects.get(id=pk)
+    letter.delete()
+
+    return redirect('home')
