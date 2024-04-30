@@ -6,9 +6,9 @@
 
 <div>
     <div>
-        {% for box in boxes %}
+        {% for b in boxes %}
 
-            <a href="{% url 'box' box.id %}">{{ box.name }}</a>
+            <a href="{% url 'box' b.name %}">{{ b.name }}</a>
 
         {% endfor %}
     </div>

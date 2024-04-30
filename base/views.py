@@ -5,16 +5,17 @@ from .forms import MailForm
 # Create your views here.
 
 def home(request): #On the homescreen
-    boxes = Box.objects.all() #Grab all boxes in database
-    mail = Mail.objects.all() #Grab all mail in database
-
-    context = {'mail': mail, 'boxes': boxes}
-
-    return render(request, 'home.html', context)
-
-def box(request, pk): #Going inside of a box
     boxes = Box.objects.all()
-    box = Box.objects.get(id=pk)
+    box = Box.objects.get(name='Inbox')
+    mail = Mail.objects.all() #Only grab mail that's inside that specific box
+
+    context = {'boxes': boxes, 'box': box, 'mail': mail}
+
+    return render(request, 'box.html', context)
+
+def box(request, name): #Going inside of a box
+    boxes = Box.objects.all()
+    box = Box.objects.get(name=name)
     mail = Mail.objects.all() #Only grab mail that's inside that specific box
 
     context = {'boxes': boxes, 'box': box, 'mail': mail}

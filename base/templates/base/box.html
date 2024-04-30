@@ -9,7 +9,7 @@
     <div>
         {% for b in boxes %}
 
-            <a href="{% url 'box' b.id %}">{{ b.name }}</a>
+            <a href="{% url 'box' b.name %}">{{ b.name }}</a>
 
         {% endfor %}
     </div>
