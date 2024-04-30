@@ -13,10 +13,11 @@ def home(request): #On the homescreen
     return render(request, 'home.html', context)
 
 def box(request, pk): #Going inside of a box
+    boxes = Box.objects.all()
     box = Box.objects.get(id=pk)
     mail = Mail.objects.all() #Only grab mail that's inside that specific box
 
-    context = {'box': box, 'mail': mail}
+    context = {'boxes': boxes, 'box': box, 'mail': mail}
 
     return render(request, 'box.html', context)
 
