@@ -19,55 +19,34 @@
     </div>
 
     <div>
-        {% if box.name == 'Inbox' %}
+        {% for letter in mail %}
 
-            {% for letter in mail %}
+            {% if letter.currentBox.name == box.name or box.name == 'Inbox' and letter.currentBox.name == 'Highlighted' or box.name == 'Inbox' and letter.currentBox.name == 'Inbox' %}
 
-                {% if letter.currentBox.name == 'Highlighted' or letter.currentBox.name == 'Inbox' %}
+                {% if letter.isUnread == True %}
+                    <h2>Unread</h2>
+                {% else %}
+                    <h2>Read</h2>
+                {% endif %}
 
-                    {% if letter.isUnread == True %}
-                        <h2>Unread</h2>
-                    {% else %}
-                        <h2>Read</h2>
-                    {% endif %}
+                <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
 
-                    <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
-
+                <div>
+                    <a href="{% url 'moveMailToBox' letter.id 'Highlighted' %}">
+                        <h4>Highlight</h4>
+                    </a>
+                    <a href="{% url 'moveMailToBox' letter.id 'Archive' %}">
+                        <h4>Archive</h4>
+                    </a>
                     <a href="{% url 'deleteEmail' letter.id %}">
                         <h4>Delete</h4>
                     </a>
-
-                    <hr>
+                </div>
+                <hr>
+            
+            {% endif %}
                 
-                {% endif %}
-                
-            {% endfor %}
-
-        {% else %}
-
-            {% for letter in mail %}
-
-                {% if letter.currentBox.name == box.name %}
-
-                    {% if letter.isUnread == True %}
-                        <h2>Unread</h2>
-                    {% else %}
-                        <h2>Read</h2>
-                    {% endif %}
-
-                    <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
-
-                    <a href="{% url 'deleteEmail' letter.id %}">
-                        <h4>Delete</h4>
-                    </a>
-
-                    <hr>
-                
-                {% endif %}
-                    
-            {% endfor %}
-
-        {% endif %}
+        {% endfor %}
     </div>
 
 </div>

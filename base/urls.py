@@ -8,5 +8,6 @@ urlpatterns = [
 
     path('sendMail/', views.sendMail, name='sendMail'),
     path('respond/<str:pk>/', views.respond, name='respond'),
+    path('moveMailToBox/<str:pk>/<str:name>/', views.moveMailToBox, name='moveMailToBox'),
     path('deleteEmail/<str:pk>/', views.deleteEmail, name='deleteEmail'),
 ]
