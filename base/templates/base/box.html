@@ -21,7 +21,7 @@
     <div>
         {% for letter in mail %}
 
-            {% if letter.currentBox.name == box.name or box.name == 'Inbox' and letter.currentBox.name == 'Highlighted' or box.name == 'Inbox' and letter.currentBox.name == 'Inbox' %}
+            {% if box.name == 'All Mail' or letter.currentBox.name == box.name or box.name == 'Inbox' and letter.currentBox.name == 'Highlighted' or box.name == 'Inbox' and letter.currentBox.name == 'Inbox' %}
 
                 {% if letter.isUnread == True %}
                     <h2>Unread</h2>
