@@ -32,6 +32,13 @@
                 <a href="{% url 'mail' letter.id %}"><h3>{{letter.sender.first_name}} {{letter.sender.last_name}}: {{letter.title}}</h3></a>
 
                 <div>
+                    <a href="{% url 'markUnreadOrRead' letter.id %}">
+                        {% if letter.isUnread == True %}
+                            <h4>Mark as Read</h4>
+                        {% else %}
+                            <h4>Mark as Unread</h4>
+                        {% endif %}
+                    </a>
                     <a href="{% url 'moveMailToBox' letter.id 'Highlighted' %}">
                         <h4>Highlight</h4>
                     </a>

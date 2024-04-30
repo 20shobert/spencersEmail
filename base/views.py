@@ -69,6 +69,13 @@ def respond(request, pk): #Responding to an email
 
     return render(request, 'mailForm.html', context)
 
+def markUnreadOrRead(request, pk):
+    letter = Mail.objects.get(id=pk)
+    letter.isUnread = not letter.isUnread #Flip the boolean
+    letter.save()
+
+    return redirect('home')
+
 def moveMailToBox(request, pk, name):
     letter = Mail.objects.get(id=pk)
     box = Box.objects.get(name=name)
