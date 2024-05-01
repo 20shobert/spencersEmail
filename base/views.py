@@ -1,17 +1,22 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q
 from .models import Mail, Box
 from .forms import MailForm
 
 # Create your views here.
 
 def home(request): #On the homescreen (inbox)
-    return box(request, 'Inbox') #Go to the real home FOR NOW. MAKE INTRO PAGE LATER.
+    return box(request, 'Inbox') #Go to the inbox FOR NOW. MAKE INTRO PAGE LATER.
 
 def box(request, name): #Going inside of a box
+
+    if request.GET.get('q') != None:
+        q = request.GET.get('q')
+        mail = Mail.objects.filter(content__icontains=q) | Mail.objects.filter(title__icontains=q)
+    else:
+        mail = Mail.objects.all() #Only grab mail that's inside that specific box
+
     boxes = Box.objects.all()
     box = Box.objects.get(name=name)
-    mail = Mail.objects.all() #Only grab mail that's inside that specific box
 
     context = {'boxes': boxes, 'box': box, 'mail': mail}
 
