@@ -42,31 +42,12 @@ def sendMail(request): #Sending an email
 def respond(request, pk): #Responding to an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
 
-    #Filling in the form
-    letter.receiver = letter.sender #Sender becomes the receiver
-    letter.sender = None #Will change the sender to the user later. CHANGE LATER.
-    letter.currentBox = Box.objects.get(name='Inbox') #Defaults to the inbox
-    letter.previousMail = letter #The response points to the old email
-    letter.content = '' #Wipe what was in it previously
-    letter.isResponse = True #Marks the form as a response
-
     if request.method == 'POST':
-        form = MailForm(request.POST, instance=letter)
+        newLetter = Mail()
+        form = MailForm(request.POST, instance=newLetter)
 
         if form.is_valid():
             letter.inShadowRealm = True #The old email won't show up anywhere. Keeps the mail in a thread.
-
-            newLetter = Mail(
-                sender = form.sender,
-                receiver = form.receiver,
-                currentBox = form.currentbox,
-                title = form.title,
-                previousMail = form.previousMail,
-                content = form.content,
-                isResponse = form.isResponse,
-                isUnread = form.isUnread,
-                isSelected = form.isSelected
-            )
 
             newLetter.save()
             letter.save()
@@ -74,6 +55,14 @@ def respond(request, pk): #Responding to an email
         
         else:
             print(form.errors)
+
+    #Filling in the form
+    letter.receiver = letter.sender #Sender becomes the receiver
+    letter.sender = None #Will change the sender to the user later. CHANGE LATER.
+    letter.currentBox = Box.objects.get(name='Inbox') #Defaults to the inbox
+    letter.previousMail = letter #The response points to the old email
+    letter.content = '' #Wipe what was in it previously
+    letter.isResponse = True #Marks the form as a response
 
     form = MailForm(instance=letter) #Convert letter to form
 
