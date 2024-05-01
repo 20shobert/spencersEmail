@@ -1,5 +1,9 @@
-<a href="/">
+<a href="{% url 'box' 'Inbox' %}">
     <h1>Mint Mail</h1>
 </a>
+
+<form method="GET" action="{% url 'home' %}">
+    <input type="text" name="q" placeholder="Search Mail">
+</form>
 
 <hr>

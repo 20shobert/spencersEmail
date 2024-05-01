@@ -1,17 +1,12 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from .models import Mail, Box
 from .forms import MailForm
 
 # Create your views here.
 
 def home(request): #On the homescreen (inbox)
-    boxes = Box.objects.all()
-    box = Box.objects.get(name='Inbox')
-    mail = Mail.objects.all() #Only grab mail that's inside that specific box
-
-    context = {'boxes': boxes, 'box': box, 'mail': mail}
-
-    return render(request, 'box.html', context)
+    return box(request, 'Inbox') #Go to the real home FOR NOW. MAKE INTRO PAGE LATER.
 
 def box(request, name): #Going inside of a box
     boxes = Box.objects.all()
@@ -46,24 +41,41 @@ def sendMail(request): #Sending an email
 
 def respond(request, pk): #Responding to an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
-    letter.receiver = letter.sender #Sender becomes the receiver
-    #letter.sender = None #Will change the sender to the user later. CHANGE LATER.
-    if letter.previousContent != None: #If response content isn't empty
-        letter.previousContent = letter.content + '\n\n---------------------\n\n' + letter.previousContent #Content goes into response content
-    else: #If response content IS empty
-        letter.previousContent = letter.content #Content goes into response content
-    letter.content = '' #Deletes old content
-    letter.isResponse = True #Marks the form as a response
 
-    form = MailForm(instance=letter) #Convert letter to form
+    #Filling in the form
+    letter.receiver = letter.sender #Sender becomes the receiver
+    letter.sender = None #Will change the sender to the user later. CHANGE LATER.
+    letter.currentBox = Box.objects.get(name='Inbox') #Defaults to the inbox
+    letter.previousMail = letter #The response points to the old email
+    letter.content = '' #Wipe what was in it previously
+    letter.isResponse = True #Marks the form as a response
 
     if request.method == 'POST':
         form = MailForm(request.POST, instance=letter)
+
         if form.is_valid():
-            form.save()
+            letter.inShadowRealm = True #The old email won't show up anywhere. Keeps the mail in a thread.
+
+            newLetter = Mail(
+                sender = form.sender,
+                receiver = form.receiver,
+                currentBox = form.currentbox,
+                title = form.title,
+                previousMail = form.previousMail,
+                content = form.content,
+                isResponse = form.isResponse,
+                isUnread = form.isUnread,
+                isSelected = form.isSelected
+            )
+
+            newLetter.save()
+            letter.save()
             return redirect('home')
+        
         else:
             print(form.errors)
+
+    form = MailForm(instance=letter) #Convert letter to form
 
     context = {'letter': letter, 'form': form}
 

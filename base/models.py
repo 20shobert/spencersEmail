@@ -18,16 +18,14 @@ class Mail(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender') #null=True IS TEMPORARY. CHANGE LATER.
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='receiver') #null=True IS TEMPORARY. CHANGE LATER.
     currentBox = models.ForeignKey(Box, on_delete=models.CASCADE, null=True) #Which box the mail is currently in. Defaults to Inbox.
-    title = models.CharField(max_length=200) #Max length of 200 char
-    previousContent = models.TextField(null=True, blank=True) #Field CAN be blank in forms
+    title = models.CharField(max_length=200, blank=False) #Max length of 200 char. Cannot be blank
+    previousMail = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True) #Field CAN be blank in forms
     content = models.TextField() #Text field cannot be blank
     sentDate = models.DateTimeField(auto_now_add=True) #Time is saved once it's first created
     isResponse = models.BooleanField(default=False) #If email is a response to another email, true
-    isArchived = models.BooleanField(default=False) #If archived, true
-    isDeleted = models.BooleanField(default=False) #If deleted, true
     isUnread = models.BooleanField(default=True) #If unread, true. Defaults to unread
-    isHighlighted = models.BooleanField(default=False) #If highlighted, true
     isSelected = models.BooleanField(default=False) #If selected, true
+    inShadowRealm = models.BooleanField(default=False) #If the email has a reply, hide the old one
 
     class Meta:
         ordering = ['-sentDate', 'title'] #Newest emails are first

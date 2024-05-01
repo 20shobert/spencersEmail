@@ -21,6 +21,7 @@
     <div>
         {% for letter in mail %}
 
+            {% if letter.inShadowRealm == False %}
             {% if box.name == 'All Mail' or letter.currentBox.name == box.name or box.name == 'Inbox' and letter.currentBox.name == 'Highlighted' or box.name == 'Inbox' and letter.currentBox.name == 'Inbox' %}
 
                 {% if letter.isUnread == True %}
@@ -51,6 +52,7 @@
                 </div>
                 <hr>
             
+            {% endif %}
             {% endif %}
                 
         {% endfor %}
