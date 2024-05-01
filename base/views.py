@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from .models import Mail, Box
 from .forms import MailForm
 
@@ -11,7 +12,9 @@ def box(request, name): #Going inside of a box
 
     if request.GET.get('q') != None:
         q = request.GET.get('q')
-        mail = Mail.objects.filter(content__icontains=q) | Mail.objects.filter(title__icontains=q)
+        mail = Mail.objects.filter(
+            Q(content__icontains=q) |
+            Q(title__icontains=q))
     else:
         mail = Mail.objects.all() #Only grab mail that's inside that specific box
 

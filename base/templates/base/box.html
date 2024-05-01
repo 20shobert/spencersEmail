@@ -5,7 +5,7 @@
 <h1>{{ box.name }}</h1>
 
 <form method="GET" action="{% url 'home' %}?q=">
-    <input type="text" name="q" placeholder="Search Mail">
+    <input type="text" name="q" placeholder="Search Mail...">
 </form>
 
 <div>
@@ -46,15 +46,36 @@
                             <h4>Mark as Unread</h4>
                         {% endif %}
                     </a>
-                    <a href="{% url 'moveMailToBox' letter.id 'Highlighted' %}">
-                        <h4>Highlight</h4>
-                    </a>
-                    <a href="{% url 'moveMailToBox' letter.id 'Archive' %}">
-                        <h4>Archive</h4>
-                    </a>
-                    <a href="{% url 'deleteEmail' letter.id %}">
-                        <h4>Delete</h4>
-                    </a>
+
+                    {% if letter.currentBox.name == 'Highlighted' %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Inbox' %}">
+                            <h4>Unhighlight</h4>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Highlighted' %}">
+                            <h4>Highlight</h4>
+                        </a>
+                    {% endif %}
+
+                    {% if letter.currentBox.name == 'Archive' %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Inbox' %}">
+                            <h4>Take out of Archive</h4>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Archive' %}">
+                            <h4>Archive</h4>
+                        </a>
+                    {% endif %}
+
+                    {% if letter.currentBox.name == 'Deleted' %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Inbox' %}">
+                            <h4>Restore</h4>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'moveMailToBox' letter.id 'Deleted' %}">
+                            <h4>Delete</h4>
+                        </a>
+                    {% endif %}
                 </div>
                 <hr>
             
