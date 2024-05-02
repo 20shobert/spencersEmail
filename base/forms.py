@@ -1,10 +1,9 @@
 from django import forms
-from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Mail
 
-class MailForm(ModelForm):
+class MailForm(forms.ModelForm):
     class Meta:
         model = Mail
         fields = '__all__'
