@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Mail, Box
@@ -9,10 +10,14 @@ from .forms import MailForm
 
 # Create your views here.
 
-def loginPage(request): #Log the user in
+def loginPage(request): #Logging the user in
+    page = 'login'
+
+    if request.user.is_authenticated: #If the user is already logged in
+        return redirect('home')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.POST.get('username').lower() #Ensure the username is lowercase
         password = request.POST.get('password')
 
         try:
@@ -28,8 +33,26 @@ def loginPage(request): #Log the user in
         else:
             messages.error(request, 'Username or Password does not exist')
 
-    context = {}
-    return render(request, 'base/loginRegister.html', context)
+    context = {'page': page}
+    return render(request, 'loginRegister.html', context)
+
+def registerPage(request):
+    form = UserCreationForm()
+
+    if request.method == 'POST':
+        user = User()
+        form = UserCreationForm(request.POST, instance=user)
+
+        if form.is_valid():
+            user.username = user.username.lower() #Ensure the username is lowercase
+            user.save() #Save the user
+            login(request, user) #Log the user in
+            return redirect('home')
+        else:
+            messages.error(request, 'An error occured during registration')
+
+    context = {'form': form}
+    return render(request, 'loginRegister.html', context)
 
 @login_required(login_url='login')
 def logoutUser(request): #Log the user out
@@ -77,7 +100,7 @@ def sendMail(request): #Sending an email
             form.save()
             return redirect('home')
         else:
-            print(form.errors)
+            messages.error(request, 'Error: ' + form.errors)
 
     context = {'form': form}
 
@@ -99,7 +122,7 @@ def respond(request, pk): #Responding to an email
             return redirect('home')
         
         else:
-            print(form.errors)
+            messages.error(request, 'Error: ' + form.errors)
 
     #Filling in the form
     letter.receiver = letter.sender #Sender becomes the receiver
