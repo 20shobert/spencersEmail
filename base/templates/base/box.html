@@ -13,7 +13,7 @@
     <div>
         {% for b in boxes %}
 
-            <a href="{% url 'box' b.name %}">{{ b.name }}</a>
+            <a href="{% url 'box' b.name %}">{{ b.name }}({{ b.numInside }})</a>
 
         {% endfor %}
     </div>

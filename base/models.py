@@ -29,6 +29,13 @@ class Mail(models.Model):
 
     class Meta:
         ordering = ['-sentDate', 'title'] #Newest emails are first
+    
+    def save(self, *args, **kwargs):
+        for b in Box.objects.all(): #Counting however many emails are inside each box
+            b.numInside = Mail.objects.filter(currentBox=b).exclude(inShadowRealm=True).count() #Counting what's inside the current box, but isn't in the shadow realm
+            b.save()
+        
+        super(Mail, self).save(*args, **kwargs) #Saving the mail
 
     def __str__(self):
         return str(self.title)

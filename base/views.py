@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q
+from django.db.models import Q, F
 from .models import Mail, Box
 from .forms import MailForm
 
@@ -10,11 +10,12 @@ def home(request): #On the homescreen (inbox)
 
 def box(request, name): #Going inside of a box
 
-    if request.GET.get('q') != None:
+    if request.GET.get('q') != None: #Search functionality
         q = request.GET.get('q')
         mail = Mail.objects.filter(
             Q(content__icontains=q) |
-            Q(title__icontains=q))
+            Q(title__icontains=q)
+            ) #Doesn't currently support searching sender and receivers names, but will add later
     else:
         mail = Mail.objects.all() #Only grab mail that's inside that specific box
 
@@ -93,7 +94,6 @@ def moveMailToBox(request, pk, name):
     letter.save()
 
     return redirect('home')
-
 
 def deleteEmail(request, pk): #Delete an email
     letter = Mail.objects.get(id=pk)
