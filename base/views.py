@@ -2,11 +2,10 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Mail, Box
-from .forms import MailForm
+from .forms import MailForm, UserRegistrationForm
 
 # Create your views here.
 
@@ -37,11 +36,11 @@ def loginPage(request): #Logging the user in
     return render(request, 'loginRegister.html', context)
 
 def registerPage(request):
-    form = UserCreationForm()
+    form = UserRegistrationForm()
 
     if request.method == 'POST':
         user = User()
-        form = UserCreationForm(request.POST, instance=user)
+        form = UserRegistrationForm(request.POST, instance=user)
 
         if form.is_valid():
             user.username = user.username.lower() #Ensure the username is lowercase
