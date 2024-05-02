@@ -56,53 +56,78 @@ def registerPage(request):
 @login_required(login_url='login')
 def logoutUser(request): #Log the user out
     logout(request)
+    countHowMany(request.user)
     return redirect('home')
 
 @login_required(login_url='login')
 def home(request): #On the homescreen (inbox)
+    countHowMany(request.user)
     return box(request, 'Inbox') #Go to the inbox FOR NOW. MAKE INTRO PAGE LATER.
 
 @login_required(login_url='login')
 def box(request, name): #Going inside of a box
+    boxes = Box.objects.filter(owner=request.user) #Only grab mail from boxes that the user owns
+    box = Box.objects.get(
+        Q(name=name) &
+        Q(owner=request.user)
+        )
+    mail = Mail.objects.filter(currentBox = box)
 
-    if request.GET.get('q') != None: #Search functionality
+
+
+    if request.GET.get('q') != None: #Search bar functionality
         q = request.GET.get('q')
         mail = Mail.objects.filter(
             Q(content__icontains=q) |
             Q(title__icontains=q)
-            ) #Doesn't currently support searching sender and receivers names, but will add later
-    else:
-        mail = Mail.objects.all() #Only grab mail that's inside that specific box
-
-    boxes = Box.objects.all()
-    box = Box.objects.get(name=name)
+            ) #Doesn't currently support searching sender and receivers names, but will add later. CHANGE LATER.
 
     context = {'boxes': boxes, 'box': box, 'mail': mail}
 
+    countHowMany(request.user)
     return render(request, 'box.html', context)
 
 @login_required(login_url='login')
 def mail(request, pk): #Looking at an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
+
+    if letter.currentBox.owner != request.user:
+        return redirect('home') #If they don't own the letter, leave
+    
     letter.isUnread = False #Marks the letter as read
     letter.save() #Saves it to the database
     context = {'letter': letter}
 
+    countHowMany(request.user)
     return render(request, 'mail.html', context)
 
 @login_required(login_url='login')
 def sendMail(request): #Sending an email
-    form = MailForm()
+
     if request.method == 'POST':
-        form = MailForm(request.POST)
+        mailReceiver = User.objects.get(id=request.POST['receiver'])
+
+        mail = Mail()
+        mail.sender = request.user #Sender is always the current user
+        mail.receiver = mailReceiver #Throwing error?
+        mail.currentBox = Box.objects.get(
+            Q(owner=mailReceiver) &
+            Q(name='Inbox')
+        ) #Grab the box that the mail is going to go into (the receivers inbox)
+        mail.title = request.POST['title']
+        mail.content = request.POST['content']
+
+        form = MailForm(request.POST, instance=mail)
         if form.is_valid():
             form.save()
             return redirect('home')
         else:
-            messages.error(request, 'Error: ' + form.errors)
+            print(form.errors)
 
+    form = MailForm(instance=Mail()) #I don't know if I need instance=Mail()
     context = {'form': form}
 
+    countHowMany(request.user)
     return render(request, 'mailForm.html', context)
 
 @login_required(login_url='login')
@@ -135,6 +160,7 @@ def respond(request, pk): #Responding to an email
 
     context = {'letter': letter, 'form': form}
 
+    countHowMany(request.user)
     return render(request, 'mailForm.html', context)
 
 @login_required(login_url='login')
@@ -143,6 +169,7 @@ def markUnreadOrRead(request, pk):
     letter.isUnread = not letter.isUnread #Flip the boolean
     letter.save()
 
+    countHowMany(request.user)
     return redirect('home')
 
 @login_required(login_url='login')
@@ -153,6 +180,7 @@ def moveMailToBox(request, pk, name):
     letter.currentBox = box
     letter.save()
 
+    countHowMany(request.user)
     return redirect('home')
 
 @login_required(login_url='login')
@@ -161,4 +189,10 @@ def deleteEmail(request, pk): #Delete an email
 
     letter.delete()
 
+    countHowMany(request.user)
     return redirect('home')
+
+def countHowMany(theUser):
+    for b in Box.objects.filter(owner=theUser): #Counting however many emails are inside each box
+        b.numInside = Mail.objects.filter(currentBox=b).exclude(inShadowRealm=True).count() #Counting what's inside the current box, but isn't in the shadow realm
+        b.save()

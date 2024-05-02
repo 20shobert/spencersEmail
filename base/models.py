@@ -6,11 +6,11 @@ from django.contrib.auth.models import User
 #Boxes
 class Box(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #null=True IS TEMPORARY. CHANGE LATER.
-    name = models.CharField(max_length=11, unique=True) #Name of box. Cannot have duplicate names
+    name = models.CharField(max_length=11) #Name of box. Cannot have duplicate names
     numInside = models.IntegerField(default=0) #Number of emails inside this box
 
     def __str__(self):
-        return str(self.name)
+        return str(self.owner.username) + ": " + str(self.name)
 
 
 #Mail
@@ -28,14 +28,7 @@ class Mail(models.Model):
     inShadowRealm = models.BooleanField(default=False) #If the email has a reply, hide the old one
 
     class Meta:
-        ordering = ['-sentDate', 'title'] #Newest emails are first
-    
-    def save(self, *args, **kwargs): #Overriding the save function
-        for b in Box.objects.all(): #Counting however many emails are inside each box
-            b.numInside = Mail.objects.filter(currentBox=b).exclude(inShadowRealm=True).count() #Counting what's inside the current box, but isn't in the shadow realm
-            b.save()
-        
-        super(Mail, self).save(*args, **kwargs) #Saving the mail
+        ordering = ['-sentDate', 'title'] #Newest emails are first, then sort by title
 
     def __str__(self):
-        return str(self.title)
+        return str(self.sender.username) + " --> " + str(self.receiver) + " | Title: " + (self.title)
