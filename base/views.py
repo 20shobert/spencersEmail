@@ -1,13 +1,46 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q, F
+from django.db.models import Q
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from .models import Mail, Box
 from .forms import MailForm
 
 # Create your views here.
 
+def loginPage(request): #Log the user in
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+        except: #If user doesn't exist
+            messages.error(request, 'User does not exist')
+        
+        #If user exists
+        user = authenticate(request, username=username, password=password)
+        if user != None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Username or Password does not exist')
+
+    context = {}
+    return render(request, 'base/loginRegister.html', context)
+
+@login_required(login_url='login')
+def logoutUser(request): #Log the user out
+    logout(request)
+    return redirect('home')
+
+@login_required(login_url='login')
 def home(request): #On the homescreen (inbox)
     return box(request, 'Inbox') #Go to the inbox FOR NOW. MAKE INTRO PAGE LATER.
 
+@login_required(login_url='login')
 def box(request, name): #Going inside of a box
 
     if request.GET.get('q') != None: #Search functionality
@@ -26,6 +59,7 @@ def box(request, name): #Going inside of a box
 
     return render(request, 'box.html', context)
 
+@login_required(login_url='login')
 def mail(request, pk): #Looking at an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
     letter.isUnread = False #Marks the letter as read
@@ -34,6 +68,7 @@ def mail(request, pk): #Looking at an email
 
     return render(request, 'mail.html', context)
 
+@login_required(login_url='login')
 def sendMail(request): #Sending an email
     form = MailForm()
     if request.method == 'POST':
@@ -48,6 +83,7 @@ def sendMail(request): #Sending an email
 
     return render(request, 'mailForm.html', context)
 
+@login_required(login_url='login')
 def respond(request, pk): #Responding to an email
     letter = Mail.objects.get(id=pk) #Grab whatever letter is equal to the pk
 
@@ -79,6 +115,7 @@ def respond(request, pk): #Responding to an email
 
     return render(request, 'mailForm.html', context)
 
+@login_required(login_url='login')
 def markUnreadOrRead(request, pk):
     letter = Mail.objects.get(id=pk)
     letter.isUnread = not letter.isUnread #Flip the boolean
@@ -86,6 +123,7 @@ def markUnreadOrRead(request, pk):
 
     return redirect('home')
 
+@login_required(login_url='login')
 def moveMailToBox(request, pk, name):
     letter = Mail.objects.get(id=pk)
     box = Box.objects.get(name=name)
@@ -95,8 +133,10 @@ def moveMailToBox(request, pk, name):
 
     return redirect('home')
 
+@login_required(login_url='login')
 def deleteEmail(request, pk): #Delete an email
     letter = Mail.objects.get(id=pk)
+
     letter.delete()
 
     return redirect('home')
