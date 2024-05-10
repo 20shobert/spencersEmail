@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from .models import Mail, Box
 from .forms import MailForm, UserRegistrationForm
 
@@ -44,7 +45,18 @@ def registerPage(request):
 
         if form.is_valid():
             user.username = user.username.lower() #Ensure the username is lowercase
+            user.email = str(user.username.lower()) + '@mintmail.com'
             user.save() #Save the user
+
+            #Creating all the boxes for the new user
+            boxList = ['Inbox', 'Archive', 'Deleted', 'Highlighted', 'All Mail']
+            for i in boxList:
+                box = Box()
+                box.owner = user
+                box.name = i
+                box.numInside = 0
+                box.save()
+
             login(request, user) #Log the user in
             return redirect('home')
         else:
