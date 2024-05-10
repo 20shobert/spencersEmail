@@ -55,8 +55,8 @@ def registerPage(request):
 
 @login_required(login_url='login')
 def logoutUser(request): #Log the user out
-    logout(request)
     countHowMany(request.user)
+    logout(request)
     return redirect('home')
 
 @login_required(login_url='login')
