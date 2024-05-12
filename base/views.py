@@ -4,66 +4,140 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
 from .models import Mail, Box
 from .forms import MailForm, UserRegistrationForm
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from .serializers import UserSerializer, BoxSerializer, MailSerializer
 
 # Create your views here.
 
-def loginPage(request): #Logging the user in
-    page = 'login'
+## OLD LOGIN PAGE (before converting to REST API)
+# def loginPage(request): #Logging the user in
+#     page = 'login'
 
-    if request.user.is_authenticated: #If the user is already logged in
-        return redirect('home')
+#     if request.user.is_authenticated: #If the user is already logged in
+#         return redirect('home')
 
-    if request.method == 'POST':
-        username = request.POST.get('username').lower() #Ensure the username is lowercase
-        password = request.POST.get('password')
+#     if request.method == 'POST':
+#         username = request.POST.get('username').lower() #Ensure the username is lowercase
+#         password = request.POST.get('password')
 
-        try:
-            user = User.objects.get(username=username)
-        except: #If user doesn't exist
-            messages.error(request, 'User does not exist')
+#         try:
+#             user = User.objects.get(username=username)
+#         except: #If user doesn't exist
+#             messages.error(request, 'User does not exist')
         
-        #If user exists
-        user = authenticate(request, username=username, password=password)
-        if user != None:
-            login(request, user)
-            return redirect('home')
+#         #If user exists
+#         user = authenticate(request, username=username, password=password)
+#         if user != None:
+#             login(request, user)
+#             return redirect('home')
+#         else:
+#             messages.error(request, 'Username or Password does not exist')
+
+#     context = {'page': page}
+#     return render(request, 'loginRegister.html', context)
+
+#New loginPage()
+def LoginAPIView(APIView):
+
+    #Checking if the user is already logged in
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated: #Is currently logged in
+            return Response(
+                {'message': 'User logged in successfully'},
+                status = status.HTTP_200_OK
+            )
+        else: #Isn't currently logged in
+            return Response(
+                {'message': 'You are not logged in'},
+                status = status.HTTP_200_OK
+            )
+    
+    #Logging the user in
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username').lower() #Ensuring the username is lowercase
+        password = request.data.get('password')
+
+        if username is None or password is None: #If one of the fields is blank
+            return Response(
+                {'error': 'Please provide both username and password'},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+        
+        theUser = authenticate(request, username=username, password=password)
+        if theUser is not None: #If the user exists
+            login(request, theUser)
+            return Response(
+                {'message': 'User logged in successfully'},
+                status = status.HTTP_200_OK
+            )
         else:
-            messages.error(request, 'Username or Password does not exist')
+            return Response(
+                {'error': 'Invalid username or password'},
+                status = status.HTTP_404_NOT_FOUND
+            )
 
-    context = {'page': page}
-    return render(request, 'loginRegister.html', context)
+## OLD REGISTER PAGE (before converting to REST API)
+# def registerPage(request):
 
-def registerPage(request):
-    form = UserRegistrationForm()
+#     if request.method == 'POST':
+#         user = User()
+#         form = UserRegistrationForm(request.POST, instance=user)
 
-    if request.method == 'POST':
-        user = User()
-        form = UserRegistrationForm(request.POST, instance=user)
+#         if form.is_valid():
+#             user.username = user.username.lower() #Ensure the username is lowercase
+#             user.email = str(user.username.lower()) + '@mintmail.com'
+#             user.save() #Save the user
 
-        if form.is_valid():
-            user.username = user.username.lower() #Ensure the username is lowercase
-            user.email = str(user.username.lower()) + '@mintmail.com'
-            user.save() #Save the user
+#             #Creating all the boxes for the new user
+#             boxList = ['Inbox', 'Archive', 'Deleted', 'Highlighted', 'All Mail']
+#             for i in boxList:
+#                 box = Box()
+#                 box.owner = user
+#                 box.name = i
+#                 box.numInside = 0
+#                 box.save()
 
-            #Creating all the boxes for the new user
-            boxList = ['Inbox', 'Archive', 'Deleted', 'Highlighted', 'All Mail']
-            for i in boxList:
-                box = Box()
-                box.owner = user
-                box.name = i
-                box.numInside = 0
-                box.save()
+#             login(request, user) #Log the user in
+#             return redirect('home')
+#         else:
+#             messages.error(request, 'An error occured during registration')
 
-            login(request, user) #Log the user in
-            return redirect('home')
-        else:
-            messages.error(request, 'An error occured during registration')
+#     context = {'form': UserRegistrationForm()}
+#     return render(request, 'loginRegister.html', context)
 
-    context = {'form': form}
-    return render(request, 'loginRegister.html', context)
+#New registerPage()
+def RegisterAPIView(APIView):
+
+    #Registering the user
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username').lower()
+        password = request.data.get('password')
+
+        #If one of the fields is empty
+        if username is None or password is None:
+            return Response(
+                {'error': 'Please provide both username and password'},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+
+        theUser = authenticate(request, username=username, password=password)
+
+        #If the user already exists
+        if theUser is not None:
+            return Response(
+                {'error': 'The user already exists'},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+        else: #If the user is ready to be registered
+            return Response( #CHANGE THIS LATER
+                {'complete'}
+            )
+            #ADD STUFF HERE LATER
+
 
 @login_required(login_url='login')
 def logoutUser(request): #Log the user out
@@ -84,8 +158,6 @@ def box(request, name): #Going inside of a box
         Q(owner=request.user)
         )
     mail = Mail.objects.filter(currentBox = box)
-
-
 
     if request.GET.get('q') != None: #Search bar functionality
         q = request.GET.get('q')
